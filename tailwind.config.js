@@ -1,5 +1,3 @@
-#### File 4: `tailwind.config.js`
-```javascript
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -11,4 +9,3 @@ export default {
   },
   plugins: [],
 }
-```

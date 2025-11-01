@@ -1,5 +1,3 @@
-#### File 8: `src/App.jsx`
-```jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Volume2, VolumeX, Settings, Play, Pause } from 'lucide-react';
 
@@ -379,4 +377,3 @@ const SoccerTranslator = () => {
 };
 
 export default SoccerTranslator;
-```
