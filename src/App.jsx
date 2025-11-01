@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Volume2, VolumeX, Settings, Play, Pause } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Volume2, VolumeX, Settings, Play, Pause } from 'lucide-react';
 
 const SoccerTranslator = () => {
   const [isListening, setIsListening] = useState(false);
@@ -14,7 +14,6 @@ const SoccerTranslator = () => {
   const recognitionRef = useRef(null);
   const synthRef = useRef(typeof window !== 'undefined' ? window.speechSynthesis : null);
 
-  // Soccer keyword dictionary
   const soccerDictionary = {
     'es-en': {
       'gol': 'goal',
@@ -52,7 +51,6 @@ const SoccerTranslator = () => {
       'victoria': 'victory',
       'derrota': 'defeat',
       'ataque': 'attack',
-      'defensa': 'defense',
       'balón': 'ball',
       'pelota': 'ball',
       'árbitro': 'referee',
@@ -88,7 +86,6 @@ const SoccerTranslator = () => {
       'victory': 'victoria',
       'defeat': 'derrota',
       'attack': 'ataque',
-      'defense': 'defensa',
       'ball': 'balón',
       'referee': 'árbitro',
       'line': 'línea',
@@ -101,7 +98,6 @@ const SoccerTranslator = () => {
     const dict = soccerDictionary[direction];
     let translated = text.toLowerCase();
     
-    // Try to match keywords
     for (const [key, value] of Object.entries(dict)) {
       const regex = new RegExp('\\b' + key + '\\b', 'gi');
       translated = translated.replace(regex, value);
@@ -142,22 +138,18 @@ const SoccerTranslator = () => {
     };
 
     recognition.onresult = (event) => {
-      let interimTranscript = '';
       let finalTranscript = '';
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
           finalTranscript += transcript + ' ';
-        } else {
-          interimTranscript += transcript;
         }
       }
 
       if (finalTranscript) {
         setTranscript(prev => prev + finalTranscript);
         
-        // Translate using dictionary
         const direction = sourceLanguage.startsWith('es') ? 'es-en' : 'en-es';
         const translated = translateWithDictionary(finalTranscript, direction);
         
@@ -227,152 +219,157 @@ const SoccerTranslator = () => {
   };
 
   return (
-    
-      
-        {/* Header */}
-        
-          ⚽ Soccer Translator
-          Real-time commentary translation
-        
+    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-emerald-900 text-white p-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold mb-2">⚽ Soccer Translator</h1>
+          <p className="text-green-200 text-sm">Real-time commentary translation</p>
+        </div>
 
-        {/* Status Card */}
-        
-          
-            
-              
-              {status}
-            
+        <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`} />
+              <span className="text-sm font-medium">{status}</span>
+            </div>
             <button
               onClick={() => setShowSettings(!showSettings)}
               className="p-2 hover:bg-white/10 rounded-lg transition"
             >
-              
-            
-          
+              <Settings size={20} />
+            </button>
+          </div>
 
-          {/* Settings Panel */}
           {showSettings && (
-            
-              
-                Source Language (What you hear)
+            <div className="bg-black/20 rounded-lg p-4 mb-4 space-y-3">
+              <div>
+                <label className="text-sm text-green-200 mb-1 block">Source Language (What you hear)</label>
                 <select
                   value={sourceLanguage}
                   onChange={(e) => setSourceLanguage(e.target.value)}
                   className="w-full bg-white/10 rounded px-3 py-2 text-white"
                   disabled={isListening}
                 >
-                  Spanish
-                  English
-                  German
-                  Italian
-                  French
-                
-              
-              
-                Target Language (Translation)
+                  <option value="es-ES">Spanish</option>
+                  <option value="en-US">English</option>
+                  <option value="de-DE">German</option>
+                  <option value="it-IT">Italian</option>
+                  <option value="fr-FR">French</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm text-green-200 mb-1 block">Target Language (Translation)</label>
                 <select
                   value={targetLanguage}
                   onChange={(e) => setTargetLanguage(e.target.value)}
                   className="w-full bg-white/10 rounded px-3 py-2 text-white"
                   disabled={isListening}
                 >
-                  English
-                  Spanish
-                  German
-                  Italian
-                  French
-                
-              
-              
+                  <option value="en-US">English</option>
+                  <option value="es-ES">Spanish</option>
+                  <option value="de-DE">German</option>
+                  <option value="it-IT">Italian</option>
+                  <option value="fr-FR">French</option>
+                </select>
+              </div>
+              <button
+                onClick={swapLanguages}
+                className="w-full bg-green-600 hover:bg-green-700 py-2 rounded-lg transition"
+                disabled={isListening}
+              >
                 ⇄ Swap Languages
-              
-            
+              </button>
+            </div>
           )}
 
-          {/* Controls */}
-          
-            
+          <div className="flex gap-3">
+            <button
+              onClick={toggleListening}
+              className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-lg font-semibold transition ${
+                isListening
+                  ? 'bg-red-600 hover:bg-red-700'
+                  : 'bg-green-600 hover:bg-green-700'
+              }`}
+            >
               {isListening ? (
                 <>
-                  
+                  <Pause size={24} />
                   Stop Listening
                 </>
               ) : (
                 <>
-                  
+                  <Play size={24} />
                   Start Listening
                 </>
               )}
-            
+            </button>
             <button
               onClick={() => setIsSpeaking(!isSpeaking)}
               className={`px-4 rounded-lg transition ${
                 isSpeaking ? 'bg-white/20 hover:bg-white/30' : 'bg-white/10 hover:bg-white/20'
               }`}
             >
-              {isSpeaking ?  : }
-            
-          
+              {isSpeaking ? <Volume2 size={24} /> : <VolumeX size={24} />}
+            </button>
+          </div>
 
           {isListening && (
-            
+            <div className="mt-3 text-xs text-green-200 text-center">
               💡 Place your device near the TV speaker
-            
+            </div>
           )}
-        
+        </div>
 
-        {/* Transcripts */}
-        
-          {/* Original Commentary */}
-          
-            
-              Original Commentary
-              
+        <div className="space-y-4">
+          <div className="bg-white/10 backdrop-blur-md rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold text-green-200">Original Commentary</h3>
+              <span className="text-xs bg-white/20 px-2 py-1 rounded">
                 {sourceLanguage.split('-')[0].toUpperCase()}
-              
-            
-            
+              </span>
+            </div>
+            <div className="bg-black/20 rounded p-3 min-h-[100px] max-h-[200px] overflow-y-auto text-sm">
               {transcript || 'Waiting for commentary...'}
-            
-          
+            </div>
+          </div>
 
-          {/* Translation */}
-          
-            
-              Translation
-              
+          <div className="bg-white/10 backdrop-blur-md rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold text-green-200">Translation</h3>
+              <span className="text-xs bg-white/20 px-2 py-1 rounded">
                 {targetLanguage.split('-')[0].toUpperCase()}
-              
-            
-            
+              </span>
+            </div>
+            <div className="bg-black/20 rounded p-3 min-h-[100px] max-h-[200px] overflow-y-auto text-sm">
               {translation || 'Translation will appear here...'}
-            
-          
-        
+            </div>
+          </div>
+        </div>
 
-        {/* Clear Button */}
         {(transcript || translation) && (
-          
+          <button
+            onClick={clearTranscripts}
+            className="w-full mt-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition text-sm"
+          >
             Clear Transcripts
-          
+          </button>
         )}
 
-        {/* Instructions */}
-        
-          📱 How to use:
-          
-            Allow microphone access when prompted
-            Select your source and target languages
-            Press "Start Listening"
-            Place device near TV speaker (6-12 inches)
-            Watch the match with real-time translation!
-          
-          
+        <div className="mt-6 bg-blue-900/30 border border-blue-500/30 rounded-lg p-4 text-sm">
+          <h4 className="font-semibold mb-2">📱 How to use:</h4>
+          <ol className="space-y-1 text-blue-100 list-decimal list-inside">
+            <li>Allow microphone access when prompted</li>
+            <li>Select your source and target languages</li>
+            <li>Press "Start Listening"</li>
+            <li>Place device near TV speaker (6-12 inches)</li>
+            <li>Watch the match with real-time translation!</li>
+          </ol>
+          <p className="mt-3 text-xs text-blue-200">
             ⚠️ Note: This prototype uses browser speech recognition. Works best in Safari on iPhone.
-          
-        
-      
-    
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
