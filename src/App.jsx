@@ -1,197 +1,194 @@
-import React, { useState, useRef } from 'react';
-import { Volume2, VolumeX, Settings, Play, Pause } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Volume2, VolumeX, Settings, Play, Pause, Wifi, WifiOff } from 'lucide-react';
 
 const SoccerTranslator = () => {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(true);
-  const [sourceLanguage, setSourceLanguage] = useState('es-ES');
-  const [targetLanguage, setTargetLanguage] = useState('en-US');
+  const [sourceLanguage, setSourceLanguage] = useState('it');
+  const [targetLanguage, setTargetLanguage] = useState('en');
   const [transcript, setTranscript] = useState('');
   const [translation, setTranslation] = useState('');
   const [status, setStatus] = useState('Ready to start');
   const [showSettings, setShowSettings] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const recognitionRef = useRef(null);
-  const synthRef = useRef(typeof window !== 'undefined' ? window.speechSynthesis : null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const audioContextRef = useRef(null);
+  const streamRef = useRef(null);
 
-  const soccerDictionary = {
-    'es-en': {
-      'gol': 'goal',
-      'golazo': 'amazing goal',
-      'penalti': 'penalty',
-      'penal': 'penalty',
-      'falta': 'foul',
-      'tarjeta amarilla': 'yellow card',
-      'tarjeta roja': 'red card',
-      'fuera de juego': 'offside',
-      'offside': 'offside',
-      'córner': 'corner',
-      'corner': 'corner kick',
-      'saque de esquina': 'corner kick',
-      'tiro libre': 'free kick',
-      'portero': 'goalkeeper',
-      'arquero': 'goalkeeper',
-      'defensa': 'defender',
-      'delantero': 'forward',
-      'mediocampista': 'midfielder',
-      'medio': 'midfielder',
-      'centro': 'cross',
-      'remate': 'shot',
-      'tiro': 'shot',
-      'disparo': 'shot',
-      'cabezazo': 'header',
-      'pase': 'pass',
-      'jugada': 'play',
-      'contra ataque': 'counter attack',
-      'contraataque': 'counter attack',
-      'tiempo extra': 'extra time',
-      'medio tiempo': 'half time',
-      'partido': 'match',
-      'empate': 'tie',
-      'victoria': 'victory',
-      'derrota': 'defeat',
-      'ataque': 'attack',
-      'balón': 'ball',
-      'pelota': 'ball',
-      'árbitro': 'referee',
-      'línea': 'line',
-      'área': 'box',
-      'cambio': 'substitution'
-    },
-    'en-es': {
-      'goal': 'gol',
-      'amazing goal': 'golazo',
-      'penalty': 'penalti',
-      'foul': 'falta',
-      'yellow card': 'tarjeta amarilla',
-      'red card': 'tarjeta roja',
-      'offside': 'fuera de juego',
-      'corner': 'córner',
-      'corner kick': 'saque de esquina',
-      'free kick': 'tiro libre',
-      'goalkeeper': 'portero',
-      'defender': 'defensa',
-      'forward': 'delantero',
-      'midfielder': 'mediocampista',
-      'cross': 'centro',
-      'shot': 'tiro',
-      'header': 'cabezazo',
-      'pass': 'pase',
-      'play': 'jugada',
-      'counter attack': 'contraataque',
-      'extra time': 'tiempo extra',
-      'half time': 'medio tiempo',
-      'match': 'partido',
-      'tie': 'empate',
-      'victory': 'victoria',
-      'defeat': 'derrota',
-      'attack': 'ataque',
-      'ball': 'balón',
-      'referee': 'árbitro',
-      'line': 'línea',
-      'box': 'área',
-      'substitution': 'cambio'
-    }
+  const languageMap = {
+    'it': { code: 'it', name: 'Italian', fullCode: 'it-IT' },
+    'es': { code: 'es', name: 'Spanish', fullCode: 'es-ES' },
+    'en': { code: 'en', name: 'English', fullCode: 'en-US' },
+    'de': { code: 'de', name: 'German', fullCode: 'de-DE' },
+    'fr': { code: 'fr', name: 'French', fullCode: 'fr-FR' },
   };
 
-  const translateWithDictionary = (text, direction) => {
-    const dict = soccerDictionary[direction];
-    let translated = text.toLowerCase();
-    
-    for (const [key, value] of Object.entries(dict)) {
-      const regex = new RegExp('\\b' + key + '\\b', 'gi');
-      translated = translated.replace(regex, value);
-    }
-    
-    return translated;
-  };
+  const processAudioChunk = async (audioBlob) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
 
-  const speak = (text, lang) => {
-    if (!isSpeaking || !synthRef.current) return;
-    
-    synthRef.current.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang;
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-    synthRef.current.speak(utterance);
-  };
-
-  const startListening = () => {
-    if (typeof window === 'undefined') return;
-    
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      setStatus('Speech recognition not supported. Please use Chrome or Safari.');
-      return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = sourceLanguage;
-
-    recognition.onstart = () => {
-      setStatus('Listening to commentary...');
-      setIsListening(true);
-    };
-
-    recognition.onresult = (event) => {
-      let finalTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
-        }
-      }
-
-      if (finalTranscript) {
-        setTranscript(prev => prev + finalTranscript);
-        
-        const direction = sourceLanguage.startsWith('es') ? 'es-en' : 'en-es';
-        const translated = translateWithDictionary(finalTranscript, direction);
-        
-        setTranslation(prev => prev + translated + ' ');
-        speak(translated, targetLanguage);
-      }
-    };
-
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
-      setStatus(`Error: ${event.error}. Try allowing microphone access.`);
-      if (event.error === 'not-allowed') {
-        setIsListening(false);
-      }
-    };
-
-    recognition.onend = () => {
-      if (isListening) {
-        try {
-          recognition.start();
-        } catch (e) {
-          console.error('Failed to restart recognition:', e);
-          setIsListening(false);
-          setStatus('Stopped');
-        }
-      }
-    };
-
-    recognitionRef.current = recognition;
     try {
-      recognition.start();
-    } catch (e) {
-      setStatus('Failed to start. Please refresh and try again.');
-      console.error('Recognition start error:', e);
+      // Convert blob to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      
+      reader.onloadend = async () => {
+        const base64Audio = reader.result.split(',')[1];
+
+        // Step 1: Transcribe with Deepgram
+        setStatus('Transcribing...');
+        const transcribeRes = await fetch('/api/transcribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            audioData: base64Audio,
+            language: sourceLanguage,
+          }),
+        });
+
+        if (!transcribeRes.ok) {
+          throw new Error('Transcription failed');
+        }
+
+        const { transcript: newTranscript } = await transcribeRes.json();
+        
+        if (!newTranscript || newTranscript.trim().length === 0) {
+          setIsProcessing(false);
+          setStatus('Listening to commentary...');
+          return;
+        }
+
+        setTranscript(prev => prev + newTranscript + ' ');
+
+        // Step 2: Translate with GPT-4
+        setStatus('Translating...');
+        const translateRes = await fetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: newTranscript,
+            sourceLanguage: languageMap[sourceLanguage].name,
+            targetLanguage: languageMap[targetLanguage].name,
+          }),
+        });
+
+        if (!translateRes.ok) {
+          throw new Error('Translation failed');
+        }
+
+        const { translation: newTranslation } = await translateRes.json();
+        setTranslation(prev => prev + newTranslation + ' ');
+
+        // Step 3: Generate speech with ElevenLabs
+        if (isSpeaking) {
+          setStatus('Generating speech...');
+          const speakRes = await fetch('/api/speak', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: newTranslation,
+              language: targetLanguage,
+            }),
+          });
+
+          if (speakRes.ok) {
+            const { audio } = await speakRes.json();
+            
+            // Play audio
+            const audioBlob = new Blob(
+              [Uint8Array.from(atob(audio), c => c.charCodeAt(0))],
+              { type: 'audio/mpeg' }
+            );
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audioElement = new Audio(audioUrl);
+            audioElement.play();
+          }
+        }
+
+        setStatus('Listening to commentary...');
+        setIsProcessing(false);
+      };
+
+    } catch (error) {
+      console.error('Processing error:', error);
+      setStatus(`Error: ${error.message}`);
+      setIsProcessing(false);
+    }
+  };
+
+  const startListening = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 16000,
+        } 
+      });
+      
+      streamRef.current = stream;
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+
+      // Create media recorder
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm',
+      });
+      
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      // Collect audio chunks
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      // Process every 3 seconds
+      mediaRecorder.onstop = () => {
+        if (audioChunksRef.current.length > 0) {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          processAudioChunk(audioBlob);
+          audioChunksRef.current = [];
+        }
+      };
+
+      // Start recording in 3-second chunks
+      mediaRecorder.start();
+      setInterval(() => {
+        if (mediaRecorder.state === 'recording') {
+          mediaRecorder.stop();
+          mediaRecorder.start();
+        }
+      }, 3000);
+
+      setIsListening(true);
+      setStatus('Listening to commentary...');
+
+    } catch (error) {
+      console.error('Microphone error:', error);
+      setStatus('Microphone access denied. Please allow access.');
     }
   };
 
   const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current = null;
     }
+
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+
     setIsListening(false);
     setStatus('Stopped');
   };
@@ -222,8 +219,12 @@ const SoccerTranslator = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-emerald-900 text-white p-4">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold mb-2">⚽ Soccer Translator</h1>
-          <p className="text-green-200 text-sm">Real-time commentary translation</p>
+          <h1 className="text-3xl font-bold mb-2">⚽ Soccer Translator Pro</h1>
+          <p className="text-green-200 text-sm">AI-powered real-time translation</p>
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <Wifi size={16} className="text-green-400" />
+            <span className="text-xs text-green-300">Using Professional APIs</span>
+          </div>
         </div>
 
         <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 mb-4">
@@ -231,6 +232,9 @@ const SoccerTranslator = () => {
             <div className="flex items-center gap-2">
               <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`} />
               <span className="text-sm font-medium">{status}</span>
+              {isProcessing && (
+                <div className="ml-2 text-xs text-yellow-300">Processing...</div>
+              )}
             </div>
             <button
               onClick={() => setShowSettings(!showSettings)}
@@ -243,33 +247,33 @@ const SoccerTranslator = () => {
           {showSettings && (
             <div className="bg-black/20 rounded-lg p-4 mb-4 space-y-3">
               <div>
-                <label className="text-sm text-green-200 mb-1 block">Source Language (What you hear)</label>
+                <label className="text-sm text-green-200 mb-1 block">Source Language</label>
                 <select
                   value={sourceLanguage}
                   onChange={(e) => setSourceLanguage(e.target.value)}
                   className="w-full bg-white/10 rounded px-3 py-2 text-white"
                   disabled={isListening}
                 >
-                  <option value="es-ES">Spanish</option>
-                  <option value="en-US">English</option>
-                  <option value="de-DE">German</option>
-                  <option value="it-IT">Italian</option>
-                  <option value="fr-FR">French</option>
+                  <option value="it">Italian</option>
+                  <option value="es">Spanish</option>
+                  <option value="en">English</option>
+                  <option value="de">German</option>
+                  <option value="fr">French</option>
                 </select>
               </div>
               <div>
-                <label className="text-sm text-green-200 mb-1 block">Target Language (Translation)</label>
+                <label className="text-sm text-green-200 mb-1 block">Target Language</label>
                 <select
                   value={targetLanguage}
                   onChange={(e) => setTargetLanguage(e.target.value)}
                   className="w-full bg-white/10 rounded px-3 py-2 text-white"
                   disabled={isListening}
                 >
-                  <option value="en-US">English</option>
-                  <option value="es-ES">Spanish</option>
-                  <option value="de-DE">German</option>
-                  <option value="it-IT">Italian</option>
-                  <option value="fr-FR">French</option>
+                  <option value="en">English</option>
+                  <option value="es">Spanish</option>
+                  <option value="it">Italian</option>
+                  <option value="de">German</option>
+                  <option value="fr">French</option>
                 </select>
               </div>
               <button
@@ -285,11 +289,12 @@ const SoccerTranslator = () => {
           <div className="flex gap-3">
             <button
               onClick={toggleListening}
+              disabled={isProcessing}
               className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-lg font-semibold transition ${
                 isListening
                   ? 'bg-red-600 hover:bg-red-700'
                   : 'bg-green-600 hover:bg-green-700'
-              }`}
+              } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {isListening ? (
                 <>
@@ -315,7 +320,7 @@ const SoccerTranslator = () => {
 
           {isListening && (
             <div className="mt-3 text-xs text-green-200 text-center">
-              💡 Place your device near the TV speaker
+              💡 Place device 3-6 inches from TV speaker for best results
             </div>
           )}
         </div>
@@ -325,7 +330,7 @@ const SoccerTranslator = () => {
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-semibold text-green-200">Original Commentary</h3>
               <span className="text-xs bg-white/20 px-2 py-1 rounded">
-                {sourceLanguage.split('-')[0].toUpperCase()}
+                {languageMap[sourceLanguage].name.toUpperCase()}
               </span>
             </div>
             <div className="bg-black/20 rounded p-3 min-h-[100px] max-h-[200px] overflow-y-auto text-sm">
@@ -337,7 +342,7 @@ const SoccerTranslator = () => {
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-semibold text-green-200">Translation</h3>
               <span className="text-xs bg-white/20 px-2 py-1 rounded">
-                {targetLanguage.split('-')[0].toUpperCase()}
+                {languageMap[targetLanguage].name.toUpperCase()}
               </span>
             </div>
             <div className="bg-black/20 rounded p-3 min-h-[100px] max-h-[200px] overflow-y-auto text-sm">
@@ -356,16 +361,15 @@ const SoccerTranslator = () => {
         )}
 
         <div className="mt-6 bg-blue-900/30 border border-blue-500/30 rounded-lg p-4 text-sm">
-          <h4 className="font-semibold mb-2">📱 How to use:</h4>
-          <ol className="space-y-1 text-blue-100 list-decimal list-inside">
-            <li>Allow microphone access when prompted</li>
-            <li>Select your source and target languages</li>
-            <li>Press "Start Listening"</li>
-            <li>Place device near TV speaker (6-12 inches)</li>
-            <li>Watch the match with real-time translation!</li>
-          </ol>
+          <h4 className="font-semibold mb-2">🚀 Pro Features Active:</h4>
+          <ul className="space-y-1 text-blue-100 list-disc list-inside">
+            <li>Deepgram AI for accurate transcription</li>
+            <li>GPT-4 for context-aware translation</li>
+            <li>ElevenLabs for natural voice output</li>
+            <li>3-second chunk processing for real-time feel</li>
+          </ul>
           <p className="mt-3 text-xs text-blue-200">
-            ⚠️ Note: This prototype uses browser speech recognition. Works best in Safari on iPhone.
+            ⚡ Much better quality than browser APIs!
           </p>
         </div>
       </div>
