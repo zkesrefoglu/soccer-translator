@@ -50,6 +50,42 @@ export default async function handler(req, res) {
     const result = await response.json();
     const transcript = result.results?.channels[0]?.alternatives[0]?.transcript || '';
 
+	const confidence = result.results?.channels[0]?.alternatives[0]?.confidence || 0;
+
+	const keywords = [
+	  // Core events
+	  'goal', 'goooal', 'penalty', 'red card', 'yellow card', 'offside', 'VAR',
+	  'corner', 'free kick', 'foul', 'substitution', 'kickoff', 'extra time',
+	  'first half', 'second half', 'match', 'draw', 'win', 'loss',
+
+	  // Player roles
+	  'goalkeeper', 'defender', 'midfielder', 'forward', 'striker', 'winger',
+
+	  // Actions
+	  'shot', 'header', 'pass', 'cross', 'save', 'block', 'clearance',
+	  'dribble', 'tackle', 'interception', 'assist', 'pressing', 'counter attack',
+
+	  // Situational
+	  'injury', 'stretcher', 'celebration', 'protest', 'whistle', 'restart',
+	  'throw-in', 'goal kick', 'handball', 'challenge', 'booking', 'replay',
+
+	  // Game flow
+	  'possession', 'tempo', 'build-up', 'transition', 'formation', 'lineup',
+	  'halftime', 'fulltime', 'stoppage time', 'added time', 'referee', 'whistle',
+
+	  // Stadium/Atmosphere
+	  'crowd', 'chant', 'stadium', 'fans', 'noise', 'boo', 'cheer'
+	];
+
+
+	const transcriptLower = transcript.toLowerCase();
+	const containsKeyword = keywords.some(keyword => transcriptLower.includes(keyword));
+
+	if (!containsKeyword || confidence < 0.75) {
+	  return res.status(204).json({ message: 'Filtered out: irrelevant or low confidence' });
+	}
+
+
     return res.status(200).json({
       transcript,
       confidence: result.results?.channels[0]?.alternatives[0]?.confidence || 0,
