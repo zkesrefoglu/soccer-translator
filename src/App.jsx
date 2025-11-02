@@ -11,6 +11,8 @@ const SoccerTranslator = () => {
   const [status, setStatus] = useState('Ready to start');
   const [showSettings, setShowSettings] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [lastError, setLastError] = useState('');
+  const [apiStats, setApiStats] = useState({ transcribe: 0, translate: 0, speak: 0 });
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -84,26 +86,40 @@ const SoccerTranslator = () => {
         // Step 3: Generate speech with ElevenLabs
         if (isSpeaking) {
           setStatus('Generating speech...');
-          const speakRes = await fetch('/api/speak', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              text: newTranslation,
-              language: targetLanguage,
-            }),
-          });
+          try {
+            const speakRes = await fetch('/api/speak', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                text: newTranslation,
+                language: targetLanguage,
+              }),
+            });
 
-          if (speakRes.ok) {
-            const { audio } = await speakRes.json();
-            
-            // Play audio
-            const audioBlob = new Blob(
-              [Uint8Array.from(atob(audio), c => c.charCodeAt(0))],
-              { type: 'audio/mpeg' }
-            );
-            const audioUrl = URL.createObjectURL(audioBlob);
-            const audioElement = new Audio(audioUrl);
-            audioElement.play();
+            if (speakRes.ok) {
+              const { audio } = await speakRes.json();
+              
+              // Play audio
+              const audioBlob = new Blob(
+                [Uint8Array.from(atob(audio), c => c.charCodeAt(0))],
+                { type: 'audio/mpeg' }
+              );
+              const audioUrl = URL.createObjectURL(audioBlob);
+              const audioElement = new Audio(audioUrl);
+              
+              // Make sure it plays
+              audioElement.addEventListener('canplaythrough', () => {
+                audioElement.play().catch(err => {
+                  console.error('Audio play error:', err);
+                });
+              });
+              
+              audioElement.load();
+            } else {
+              console.error('Speech API failed:', await speakRes.text());
+            }
+          } catch (err) {
+            console.error('Speech generation error:', err);
           }
         }
 

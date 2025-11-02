@@ -1,3 +1,5 @@
+// Vercel Serverless Function for Smart Translation
+
 // Soccer keyword dictionary for instant translation
 const soccerDictionary = {
   'it-en': {
@@ -168,11 +170,14 @@ export default async function handler(req, res) {
         messages: [
           { 
             role: 'system', 
-            content: `Translate from ${sourceLanguage} to ${targetLanguage}. Keep the same tone and energy. Be concise.`
+            content: `You are a translator. Translate the following text to ${targetLanguage}. 
+IMPORTANT: Your response must ONLY contain the translation in ${targetLanguage}. 
+Do not include the original text. Do not explain. Just translate.
+Keep the same tone and energy.`
           },
           { role: 'user', content: text }
         ],
-        temperature: 0.3,
+        temperature: 0.2,
         max_tokens: 200,
       }),
     });
