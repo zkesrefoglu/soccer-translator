@@ -1,6 +1,3 @@
-// Vercel Serverless Function for Smart Translation
-import fetch from 'node-fetch';
-
 // Soccer keyword dictionary for instant translation
 const soccerDictionary = {
   'it-en': {

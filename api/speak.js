@@ -1,6 +1,3 @@
-// Vercel Serverless Function for ElevenLabs Text-to-Speech
-import fetch from 'node-fetch';
-
 export default async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
