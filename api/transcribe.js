@@ -53,9 +53,15 @@ export default async function handler(req, res) {
     const transcriptLower = transcript.toLowerCase();
     const containsKeyword = keywords.some(kw => transcriptLower.includes(kw));
 
-    if (!containsKeyword || confidence < 0.75) {
-      return res.status(204).json({ message: 'Filtered: no keywords or low confidence' });
-    }
+	if (!containsKeyword || confidence < 0.75) {
+		// TEMPORARY: Return what we're filtering so you can see
+		return res.status(200).json({ 
+		transcript, 
+		confidence,
+		filtered: true,
+		reason: !containsKeyword ? 'no keywords' : 'low confidence'
+	});
+	}
 
     return res.status(200).json({ transcript, confidence });
 
