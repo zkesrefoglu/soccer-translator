@@ -125,21 +125,22 @@ export default async function handler(req, res) {
 
 	const keywords = keywordMap[language] || [];
 
-
-
     const transcriptLower = transcript.toLowerCase();
     const containsKeyword = keywords.some(kw => transcriptLower.includes(kw));
+	
+	const wordCount = transcript.trim().split(/\s+/).length;
+	const minConfidence = wordCount < 3 ? 0.5 : (language === 'en' ? 0.75 : 0.5);
 
-	if (!containsKeyword || confidence < 0.75) {
-		// TEMPORARY: Return what we're filtering so you can see
-		console.log(`[FILTERED] (${language}) "${transcript}" @ ${confidence}`);
-		return res.status(200).json({ 
-		transcript, 
+	if (!containsKeyword || confidence < minConfidence) {
+	  console.log(`[FILTERED] (${language}) "${transcript}" @ ${confidence}`);
+	  return res.status(200).json({
+		transcript,
 		confidence,
 		filtered: true,
-		reason: !containsKeyword ? 'no keywords' : 'low confidence'
-	});
+		reason: !containsKeyword ? 'no keywords' : 'low confidence',
+	  });
 	}
+
 
     return res.status(200).json({ transcript, confidence });
 
