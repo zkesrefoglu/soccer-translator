@@ -1,3 +1,5 @@
+import { getPlayerNames } from './lib/getPlayerNames.js';
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -7,6 +9,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
+	const transcript = result.results?.channels[0]?.alternatives[0]?.transcript || '';
+	
     const { audioData, language } = req.body;
     if (!audioData) return res.status(400).json({ error: 'No audio data' });
 
@@ -34,6 +38,16 @@ export default async function handler(req, res) {
     const result = await response.json();
     const transcript = result.results?.channels[0]?.alternatives[0]?.transcript || '';
     const confidence = result.results?.channels[0]?.alternatives[0]?.confidence || 0;
+	
+	const playerNames = await getPlayerNames(req.body.matchId || 'default');
+	const normalizedTranscript = transcript.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+	const wordCount = normalizedTranscript.split(/\s+/).length;
+	const nameHits = playerNames.filter(name => normalizedTranscript.includes(name));
+
+	if (wordCount <= 3 && nameHits.length >= 1) {
+	  console.log(`[PLAYER NOISE] "${transcript}" → ${nameHits.join(', ')}`);
+	  return res.status(204).json({ message: 'Filtered out: player name only' });
+	}
 	
 	const keywords_en = [
 	  'assist', 'assistant referee', 'attacker', 'back heel', 'backs', 'ball', 'bicycle kick', 'boots',
