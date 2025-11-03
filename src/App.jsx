@@ -161,18 +161,22 @@ const SoccerTranslator = () => {
                 <label className="text-xs text-green-200 block mb-1">Source Language</label>
                 <select value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)}
                   className="w-full bg-white/10 rounded px-2 py-1 text-sm" disabled={isListening}>
-                  <option value="it">Italian</option>
-                  <option value="es">Spanish</option>
-                  <option value="en">English</option>
+					<option value="es">Spanish</option>
+					<option value="fr">French</option>
+					<option value="de">German</option>
+					<option value="it">Italian</option>
+					<option value="en">English</option>
                 </select>
               </div>
               <div>
                 <label className="text-xs text-green-200 block mb-1">Target Language</label>
                 <select value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)}
                   className="w-full bg-white/10 rounded px-2 py-1 text-sm" disabled={isListening}>
-                  <option value="en">English</option>
-                  <option value="es">Spanish</option>
-                  <option value="it">Italian</option>
+					<option value="en">English</option>
+					<option value="fr">French</option>
+					<option value="de">German</option>
+					<option value="it">Italian</option>
+					<option value="es">Spanish</option>
                 </select>
               </div>
             </div>

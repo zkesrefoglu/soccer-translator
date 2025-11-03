@@ -52,18 +52,18 @@ export default async function handler(req, res) {
 	];
 
 	const keywords_es = [
-	  'asistencia', 'árbitro asistente', 'atacante', 'taconazo', 'respaldos', 'balón', 'chilena', 'botas',
-	  'precaución', 'celebración', 'pecho', 'cuchara', 'hoja limpia', 'tacos', 'entrenador', 'saque de esquina', 'tiro de esquina',
-	  'contraataque', 'centro', 'larguero', 'defensa', 'expulsión', 'piscinazo', 'división', 'empate', 'regate',
-	  'regate', 'amago', 'línea de fondo', 'gol de empate', 'equipación', 'prórroga', 'juego limpio', 'aficionados',
-	  'banderín', 'simulación', 'golpe de suerte', 'fútbol', 'delantero', 'falta', 'cuarto árbitro', 'saque de falta', 'amistoso',
-	  'tiempo completo', 'guantes', 'gol', 'saque de puerta', 'línea de gol', 'portero', 'portero', 'centrocampista defensivo',
+	  'asistencia', 'arbitro asistente', 'atacante', 'taconazo', 'respaldos', 'balon', 'chilena', 'botas',
+	  'precaucion', 'celebracion', 'pecho', 'cuchara', 'hoja limpia', 'tacos', 'entrenador', 'saque de esquina', 'tiro de esquina',
+	  'contraataque', 'centro', 'larguero', 'defensa', 'expulsion', 'piscinazo', 'division', 'empate', 'regate',
+	  'regate', 'amago', 'linea de fondo', 'gol de empate', 'equipacion', 'prorroga', 'juego limpio', 'aficionados',
+	  'banderin', 'simulacion', 'golpe de suerte', 'futbol', 'delantero', 'falta', 'cuarto arbitro', 'saque de falta', 'amistoso',
+	  'tiempo completo', 'guantes', 'gol', 'saque de puerta', 'linea de gol', 'portero', 'portero', 'centrocampista defensivo',
 	  'descanso', 'mano', 'hat-trick', 'remate de cabeza', 'cantada', 'guardameta', 'saque de centro', 'equipamiento', 'liga',
-	  'pierna', 'vaselina', 'marcar', 'partido', 'medio', 'centrocampista', 'selección nacional', 'red', 'túnel', 'oficiales',
-	  'fuera de juego', 'gol en propia meta', 'pase', 'penalti', 'área grande', 'penal', 'tanda de penaltis',
-	  'campo', 'penalti', 'poste', 'despeje', 'tarjeta roja', 'árbitro', 'parada', 'media chilena', 'expulsado',
-	  'espinilleras', 'camiseta', 'disparar', 'pantalones cortos', 'tiro', 'línea de banda', 'entrada deslizante', 'medias', 'delantero',
-	  'suplente', 'líbero', 'equipos', 'pase al hueco', 'saque de banda', 'línea de banda', 'control', 'VAR', 'volea',
+	  'pierna', 'vaselina', 'marcar', 'partido', 'medio', 'centrocampista', 'seleccion nacional', 'red', 'tunel', 'oficiales',
+	  'fuera de juego', 'gol en propia meta', 'pase', 'penalti', 'area grande', 'penal', 'tanda de penaltis',
+	  'campo', 'penalti', 'poste', 'despeje', 'tarjeta roja', 'arbitro', 'parada', 'media chilena', 'expulsado',
+	  'espinilleras', 'camiseta', 'disparar', 'pantalones cortos', 'tiro', 'linea de banda', 'entrada deslizante', 'medias', 'delantero',
+	  'suplente', 'libero', 'equipos', 'pase al hueco', 'saque de banda', 'linea de banda', 'control', 'var', 'volea',
 	  'barrera', 'silbato', 'tarjeta amarilla'
 	];
 
@@ -84,65 +84,35 @@ export default async function handler(req, res) {
 	];
 
 	const keywords_de = [
-	  'helfen', 'schiedsrichter-assistent', 'angreifer', 'hackentrick', 'rückseiten', 'ball', 'fallrückzieher', 'schuhe',
-	  'vorsicht', 'jubel', 'brust', 'lupfer', 'weiße weste', 'stollen', 'trainer', 'ecke', 'eckstoß',
+	  'helfen', 'schiedsrichter-assistent', 'angreifer', 'hackentrick', 'ruckseiten', 'ball', 'fallruckzieher', 'schuhe',
+	  'vorsicht', 'jubel', 'brust', 'lupfer', 'weisse weste', 'stollen', 'trainer', 'ecke', 'eckstoss',
 	  'konter', 'flanke', 'latte', 'verteidiger', 'entlassung', 'schwalbe', 'aufteilung', 'zeichnen', 'dribbling',
-	  'tröpfelnd', 'körpertäuschung', 'endlinie', 'ausgleich', 'ausrüstung', 'verlängerung', 'fair-play', 'fans',
-	  'fahne', 'pleite', 'glückstreffer', 'fußball', 'vorwärts', 'foul', 'vierter offizieller', 'freistoß', 'freundlich',
-	  'ende', 'handschuhe', 'tor', 'abstoß', 'torlinie', 'torwart', 'torwart', 'halber rücken',
-	  'halbzeit', 'hand', 'hattrick', 'kopfball', 'schnitzer', 'torwart', 'anstoß', 'ausrüstung', 'liga',
+	  'tropfelnd', 'korpertauschung', 'endlinie', 'ausgleich', 'ausrustung', 'verlangerung', 'fair-play', 'fans',
+	  'fahne', 'pleite', 'gluckstreffer', 'fussball', 'vorwarts', 'foul', 'vierter offizieller', 'freistoss', 'freundlich',
+	  'ende', 'handschuhe', 'tor', 'abstoss', 'torlinie', 'torwart', 'torwart', 'halber rucken',
+	  'halbzeit', 'hand', 'hattrick', 'kopfball', 'schnitzer', 'torwart', 'anstoss', 'ausrustung', 'liga',
 	  'bein', 'heber', 'markieren', 'streichholz', 'mitte', 'mittelfeldspieler', 'nationalmannschaft', 'netz', 'tunnel', 'die offiziellen',
-	  'abseits', 'eigentor', 'pass', 'elfmeter', 'strafraum', 'elfmeter', 'elfmeterschießen',
-	  'rasen', 'pk', 'pfosten', 'stoßen', 'rote karte', 'schiedsrichter', 'parade', 'seitfallzieher', 'weggeschickt',
-	  'schienbeinschoner', 'trikot', 'schieß', 'hose', 'schuss', 'seitenlinie', 'grätsche', 'socken'
+	  'abseits', 'eigentor', 'pass', 'elfmeter', 'strafraum', 'elfmeter', 'elfmeterschiessen',
+	  'rasen', 'pk', 'pfosten', 'stossen', 'rote karte', 'schiedsrichter', 'parade', 'seitfallzieher', 'weggeschickt',
+	  'schienbeinschoner', 'trikot', 'schiess', 'hose', 'schuss', 'seitenlinie', 'gratsche', 'socken'
+	];
 	  
-	const keywords_pt = [
-	  'assistência', 'árbitro assistente', 'atacante', 'toque de', 'defesas', 'bola', 'de-bicicleta', 'chuteiras',
-	  'precaução', 'celebração', 'peito', 'chapéu', 'balanço limpo', 'chuteiras', 'treinador', 'canto', 'pontapé de canto',
-	  'contra-ataque', 'cruzamento', 'barra', 'defesa', 'expulsão', 'mergulho', 'divisão', 'empate', 'finta',
-	  'drible', 'simulação', 'linha de fundo', 'golo de empate', 'equipamentos', 'prolongamento', 'fair play', 'adeptos',
-	  'bandeirinha', 'simulação', 'momento fortuito', 'futebol', 'avançado', 'falta', 'quarto-árbitro', 'livre directo', 'amistoso',
-	  'final do jogo', 'luvas', 'golo', 'pontapé-de-baliza', 'linha de baliza', 'guarda-redes', 'guarda-redes', 'medio-defensivo',
-	  'intervalo', 'bola na mão', 'hat-trick', 'cabeceamento', '(guarda-redes)', 'guarda-redes', 'pontapé-de-saída', 'equipamento', 'liga',
-	  'perna', 'chapéu longo', 'marcar', 'partida', 'medio', 'médio', 'selecção nacional', 'rede', 'túnel', 'árbitros',
-	  'fora-de-jogo', 'autogolo', 'passe', 'penalty', 'grande área', 'pontapé de penalti', 'por penalties',
-	  'campo', 'penalti', 'poste', 'pontapé longo', 'cartão vermelho', 'árbitro', 'defesa', 'remate à', 'expulso',
-	  'caneleiras', 'camisola', 'remate', 'calções', 'remate', 'linha lateral', 'tackle deslizante', 'meias', 'ponta-de-lança',
-	  'substituto', 'varredura', 'equipas', 'passe longo', 'linha lateral', 'linha lateral', 'dominar', 'VAR', 'volley',
-	  'barreira', 'apito', 'cartão amarelo'
+	const keywords_fr = [
+	  'passe decisive', 'arbitre assistant', 'attaquant', 'talonnade', 'arriere', 'balle', 'bicyclette', 'crampon',
+	  'prudence', 'joie', 'poitrine', 'pichenette', 'feuille de match vierge', 'crampons', 'entraineur', 'corner', 'corner',
+	  'contre-attaque', 'centre', 'barre', 'defenseur', 'expulsion', 'plongeon', 'division', 'match nul', 'dribble',
+	  'dribble', 'feinte', 'ligne de fond', 'egalisation', 'essentiel equipement', 'prolongation', 'fair-play', 'les fans',
+	  'drapeau', 'simulation', 'coup de billard', 'football', 'avant', 'faute', 'quatrieme officiel', 'coup franc', 'amical',
+	  'fin du match', 'gants', 'but', 'degagement', 'ligne de but', 'gardien', 'gardien', 'demi',
+	  'mi-temps', 'main', 'hat-trick', 'tete', 'erreur', 'gardien', 'coupd envoi', 'equipement', 'ligue',
+	  'jambe', 'lob', 'marquer', 'match', 'milieu', 'milieu', 'equipe nationale', 'fille', 'petit pont', 'arbitres',
+	  'hors-jeu', 'but contre son', 'passe', 'penalty', 'surface de', 'tir au but', 'tirs au but',
+	  'bien', 'penalty', 'poteau', 'degagement', 'carton rouge', 'arbitre', 'arret', 'ciseau', 'expulse',
+	  'protege-tibias', 'maillot', 'tir', 'short', 'coup', 'ligne de touche', 'tacle glisse', 'chaussettes', 'buteur',
+	  'remplacement', 'libero', 'equipes', 'grace a billes', 'touche', 'ligne de touche', 'controle', 'var', 'volee',
+	  'mur', 'sifflet', 'carton jaune'
 	];
 
-	const keywords_pl = [
-	  'asysta', 'asystent sędziego', 'napastnik', 'piętka', 'obrońcy', 'piłka', 'przewrotka', 'buty',
-	  'żółta kartka', 'radość', 'klatka piersiowa', 'podcinka', 'czyste konto', 'korki', 'trener', 'rzut rożny', 'rzut rożny',
-	  'kontratak', 'dośrodkowanie', 'poprzeczka', 'obrońca', 'wyrzucenie z boiska', 'jaskółka', 'liga', 'remis', 'dryblować',
-	  'drybling', 'zmyłka', 'linia końcowa', 'gol wyrównujący', 'wyposażenie', 'dogrywka', 'fair play', 'kibice',
-	  'chorągiewka', 'symulacja', 'przypadek', 'piłka nożna', 'napastnik', 'faul', 'sędzia', 'rzut wolny', 'mecz towarzyski',
-	  'koniec meczu', 'rękawice', 'gol', 'rzut od bramki', 'linia bramkowa', 'bramkarz', 'bramkarz', 'pomocnik defensywny',
-	  'przerwa', 'ręka', 'hat-trick', 'główka', 'wielki błąd', 'bramkarz', 'początek meczu', 'strój', 'liga',
-	  'noga', 'lob', 'krycie', 'mecz', 'środkowy pomocnik', 'pomocnik', 'reprezentacja', 'siatka', 'kanał', 'sędziowie',
-	  'spalony', 'gol samobójczy', 'podanie', 'rzut karny', 'pole karne', 'rzut karny', 'rzuty karne',
-	  'murawa', 'rzut karny', 'słupek', 'wybicie piłki', 'czerwona kartka', 'sędzia', 'obrona', 'nożyce', 'czerwona kartka',
-	  'ochraniacze na goleń', 'koszulka', 'strzelać', 'spodenki', 'strzał', 'linia boczna', 'wślizg', 'getry', 'napastnik',
-	  'napastnik', 'libero', 'zespoły', 'podanie', 'wrzut z autu', 'linia boczna', 'przyjęcie piłki', 'VAR', 'wolej',
-	  'mur', 'gwizdek', 'żółta kartka'
-	];
-
-	const keywords_ru = [
-	  'ассист', 'помощник судьи', 'атакующий игрок', 'пятка', 'защита', 'мяч', 'себя в падении', 'бутсы',
-	  'осторожность', 'празднование', 'грудь', 'подсечка', 'чистый лист', 'бутсы', 'тренер', 'угловой', 'угловой',
-	  'контратака', 'навес', 'перекладина', 'защитник', 'удаление', 'нырок', 'дивизион', 'ничья', 'обводка',
-	  'дриблинг', 'нулевое касание', 'линия ворот', 'уравнивающий гол', 'самое основное', 'дополнительное', 'фэйр-плей', 'болельщики',
-	  'флажок', 'имитация падения', 'шальной гол', 'футбол', 'нападающий', 'фол', 'четвертый судья', 'штрафной удар', 'товарищеский матч',
-	  'конец матча', 'перчатки', 'гол', 'удар от ворот', 'линия ворот', 'вратарь', 'вратарь', 'полузащитник',
-	  'перерыв', 'игра рукой', 'хет-трик', 'удар головой', 'детская ошибка', 'вратарь', 'начальный удар', 'форма', 'лига',
-	  'нога', 'удар за шиворот', 'отмечать', 'матч', 'центральный полузащитник', 'полузащитник', 'сборная', 'сетка', '“гамак”', 'арбитры',
-	  'офсайд', 'автогол', 'пас', 'пенальти', 'штрафная', 'штрафной удар', 'серия пенальти',
-	  'поле', 'пенальти', 'штанга', 'подавать мяч (пант)', 'красная карточка', 'судья', 'сейв', 'удар “ножницами”', 'удалён с поля',
-	  'защита для голени', 'футболка', 'бить', 'шорты', 'удар', 'боковая линия', 'подкат', 'гетры', 'нападающий',
-	  'запасной', 'свипер', 'команды', 'проникающий пас', 'аут', 'боковая линия', 'ловить мяч', 'VAR', 'удар с лета',
-	  'стенка', 'свисток', 'желтая карточка'
-	];
   
     // Keyword filtering
 	const keywordMap = {
@@ -151,9 +121,6 @@ export default async function handler(req, res) {
 	  it: keywords_it,
 	  de: keywords_de,
 	  fr: keywords_fr,
-	  pt: keywords_pt,
-	  pl: keywords_pl,
-	  ru: keywords_ru,
 	};
 
 	const keywords = keywordMap[language] || [];
