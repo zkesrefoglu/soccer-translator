@@ -39,7 +39,15 @@ export default async function handler(req, res) {
     const transcript = result.results?.channels[0]?.alternatives[0]?.transcript || '';
     const confidence = result.results?.channels[0]?.alternatives[0]?.confidence || 0;
 	
-	const playerNames = await getPlayerNames(req.body.matchId || 'default');
+	// 🔒 Safe player name fetch
+	let playerNames = [];
+	try {
+	  playerNames = await getPlayerNames(req.body.matchId || 'default');
+	} catch (err) {
+	  console.warn('Player name fetch failed:', err.message);
+	}
+
+
 	const normalizedTranscript = transcript.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 	const wordCount = normalizedTranscript.split(/\s+/).length;
 	const nameHits = playerNames.filter(name => normalizedTranscript.includes(name));
