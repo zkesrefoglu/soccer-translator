@@ -132,7 +132,12 @@ export default async function handler(req, res) {
 	const minConfidence = wordCount < 3 ? 0.5 : (language === 'en' ? 0.75 : 0.5);
 
 	if (!containsKeyword || confidence < minConfidence) {
-	  console.log(`[FILTERED] (${language}) "${transcript}" @ ${confidence}`);
+	  if (!containsKeyword && confidence >= minConfidence) {
+		console.log(`[NO KEYWORD] (${language}) "${transcript}" @ ${confidence}`);
+	  } else {
+		console.log(`[FILTERED] (${language}) "${transcript}" @ ${confidence}`);
+	  }
+
 	  return res.status(200).json({
 		transcript,
 		confidence,
@@ -140,6 +145,7 @@ export default async function handler(req, res) {
 		reason: !containsKeyword ? 'no keywords' : 'low confidence',
 	  });
 	}
+
 
 
     return res.status(200).json({ transcript, confidence });
